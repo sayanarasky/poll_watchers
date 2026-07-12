@@ -64,6 +64,7 @@
   .pill.draft{color:var(--draft);background:#f4f4f4;border-color:#e6e6e6;}
   .pill.sched{color:var(--sched);background:#eef3ff;border-color:#dbe6ff;}
   .pill.live{color:var(--live);background:#eafaef;border-color:#cdefd8;}
+  .pill.closed{color:#a06a00;background:#fff6e6;border-color:#f0e0c0;}
   .status-help{font-size:12px;color:var(--muted);}
 
   /* tabs */
@@ -165,6 +166,7 @@
       <button data-state="new" class="on">New / Draft</button>
       <button data-state="scheduled">Scheduled</button>
       <button data-state="published">Published</button>
+      <button data-state="closed">Voting closed</button>
     </div>
     <span class="hint">Switch state → watch the status pill &amp; footer buttons change</span>
   </div>
@@ -310,6 +312,11 @@
         <div class="new"><b>Single day</b></div>
         <div class="why">Reads less like a vague “someday” and more like “a single specific day”.</div>
       </div>
+      <div class="chg">
+        <div class="old">— (new state)</div>
+        <div class="new"><b>Voting closed</b> · Close / Reopen voting</div>
+        <div class="why">Voting open/closed is a separate axis from publishing: a published poll can stop taking votes while still showing results. Handled by its own <b>Close voting</b> / <b>Reopen voting</b> action — never folded into the publish button. Switch the demo to “Voting closed” to see it.</div>
+      </div>
     </div>
   </div>
 
@@ -364,9 +371,12 @@
     }else if(state==='scheduled'){
       pill.classList.add('sched'); txt.textContent='Scheduled · 20 Jul, 14:00';
       help.textContent='Will go live automatically at the scheduled time.';
-    }else{
+    }else if(state==='published'){
       pill.classList.add('live'); txt.textContent='Published · Live';
       help.textContent='Visible to users and collecting votes.';
+    }else{ // closed
+      pill.classList.add('closed'); txt.textContent='Voting closed · Results only';
+      help.textContent='Still visible, but users only see results — no new votes.';
     }
 
     // footer buttons
@@ -394,10 +404,16 @@
         `<button class="btn linkish left-slot">Unschedule</button>`+
         `<button class="btn ghost">Save changes</button>`+
         `<button class="btn primary">Publish now</button>`;
-    }else{ // published
+    }else if(state==='published'){
       f.innerHTML =
         `<button class="btn ghost-danger left-slot">Unpublish</button>`+
+        `<button class="btn ghost">Close voting</button>`+
         `<button class="btn primary">Save changes</button>`;
+    }else{ // closed
+      f.innerHTML =
+        `<button class="btn ghost-danger left-slot">Unpublish</button>`+
+        `<button class="btn ghost">Save changes</button>`+
+        `<button class="btn primary">Reopen voting</button>`;
     }
   }
 
