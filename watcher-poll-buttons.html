@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watcher.io — Poll buttons & states mockup</title>
+<style>
+  :root{
+    --accent:#F4E84C;
+    --accent-strong:#EFE01F;
+    --ink:#1a1a1a;
+    --muted:#8a8a8a;
+    --line:#e6e6e6;
+    --field:#f1f1f1;
+    --blue:#2563EB;
+    --blue-bg:#EAF0FF;
+    --draft:#8a8a8a;
+    --sched:#2563EB;
+    --live:#16a34a;
+    --danger:#c23b3b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:#fafafa;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Demo toolbar (not part of the product) ---------- */
+  .demobar{
+    background:#141414;color:#fff;
+    padding:14px 24px;
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+    position:sticky;top:0;z-index:20;
+  }
+  .demobar .lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#9a9a9a;}
+  .seg{display:inline-flex;background:#262626;border-radius:10px;padding:3px;gap:2px;}
+  .seg button{
+    border:0;background:transparent;color:#cfcfcf;
+    padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+  }
+  .seg button.on{background:var(--accent);color:#111;}
+  .demobar .hint{font-size:12px;color:#9a9a9a;margin-left:auto;}
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 24px 80px;}
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:18px;
+    padding:34px 40px;display:grid;grid-template-columns:1.15fr .85fr;gap:48px;
+  }
+  h1.create{font-size:26px;margin:0 0 6px;}
+  .subtitle{color:var(--muted);font-size:14px;margin:0 0 22px;}
+
+  /* status pill (replaces Activate toggle) */
+  .statusrow{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+  .pill{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:600;padding:7px 14px;border-radius:999px;
+    border:1px solid var(--line);background:#fff;
+  }
+  .pill .dot{width:8px;height:8px;border-radius:50%;background:currentColor;}
+  .pill.draft{color:var(--draft);background:#f4f4f4;border-color:#e6e6e6;}
+  .pill.sched{color:var(--sched);background:#eef3ff;border-color:#dbe6ff;}
+  .pill.live{color:var(--live);background:#eafaef;border-color:#cdefd8;}
+  .status-help{font-size:12px;color:var(--muted);}
+
+  /* tabs */
+  .tabs{display:flex;gap:26px;border-bottom:1px solid var(--line);margin-bottom:26px;}
+  .tab{
+    background:none;border:0;padding:0 0 12px;font-size:15px;color:var(--muted);
+    cursor:pointer;position:relative;font-weight:500;
+  }
+  .tab.on{color:var(--ink);font-weight:600;}
+  .tab.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#111;border-radius:2px;}
+
+  .section-h{font-size:17px;font-weight:700;margin:26px 0 14px;}
+  .section-h:first-child{margin-top:0;}
+
+  /* radios */
+  .radio-row{display:flex;gap:28px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+  .radio{display:inline-flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;}
+  .radio .rc{width:20px;height:20px;border-radius:50%;border:2px solid #c4c4c4;display:inline-flex;align-items:center;justify-content:center;}
+  .radio.on .rc{border-color:#111;}
+  .radio.on .rc:after{content:"";width:10px;height:10px;border-radius:50%;background:#111;}
+
+  /* toggles */
+  .toggle-row{display:flex;align-items:center;gap:12px;margin:16px 0;}
+  .tg{width:44px;height:26px;border-radius:999px;background:#cfcfcf;position:relative;flex:none;}
+  .tg:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.15s;}
+  .tg.on{background:var(--accent);}
+  .tg.on:after{left:21px;background:#111;}
+  .toggle-row .t-lbl{font-size:15px;}
+
+  .field-lbl{font-size:13px;color:var(--muted);margin:14px 0 8px;}
+  .field{background:var(--field);border:0;border-radius:12px;padding:16px;width:100%;font-size:14px;color:var(--ink);}
+  textarea.field{min-height:150px;resize:vertical;font-family:inherit;}
+  .field::placeholder{color:#9a9a9a;}
+
+  /* segmented */
+  .segmented{display:inline-flex;background:var(--field);border-radius:12px;padding:4px;gap:2px;}
+  .segmented button{border:0;background:transparent;padding:10px 18px;border-radius:9px;font-size:14px;color:var(--muted);cursor:pointer;font-weight:500;}
+  .segmented button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08);}
+
+  .divider{height:1px;background:var(--line);margin:20px 0;}
+  .addlink{color:var(--blue);font-weight:600;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .date-field{background:var(--field);border-radius:12px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;color:#9a9a9a;font-size:14px;}
+  .info{background:var(--blue-bg);color:var(--blue);border-radius:12px;padding:13px 16px;font-size:13px;display:flex;gap:10px;align-items:flex-start;margin-top:16px;}
+
+  .sub-help{font-size:12px;color:var(--muted);margin:-4px 0 4px 30px;}
+
+  .select-field{background:var(--field);border-radius:12px;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;color:#9a9a9a;font-size:14px;}
+
+  /* footer */
+  .footer{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:34px;flex-wrap:wrap;}
+  .footer .left-slot{margin-right:auto;}
+  .btn{border-radius:999px;padding:13px 26px;font-size:15px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink);}
+  .btn.ghost{background:#fff;}
+  .btn.ghost-danger{background:#fff;border-color:#f0d2d2;color:var(--danger);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#111;}
+  .btn.primary:hover{background:var(--accent-strong);border-color:var(--accent-strong);}
+  .btn.linkish{border:0;background:transparent;color:var(--danger);padding:13px 6px;}
+
+  /* preview */
+  .preview h3{font-size:15px;font-weight:700;margin:0 0 12px;}
+  .theme-seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:28px;}
+  .theme-seg button{border:0;background:transparent;padding:9px 18px;border-radius:9px;font-size:14px;color:var(--muted);cursor:pointer;}
+  .theme-seg button.on{background:#fff;color:var(--ink);border:1px solid var(--line);}
+  .phone{background:#000;border-radius:26px;padding:18px 16px 22px;max-width:360px;}
+  .phone-grip{width:44px;height:5px;border-radius:3px;background:#3a3a3a;margin:2px auto 26px;}
+  .phone .p-title{color:#8f8f8f;text-align:center;font-size:14px;}
+  .phone .p-q{color:#e9e9e9;text-align:center;font-size:19px;font-weight:600;margin:2px 0 26px;}
+  .phone .p-ans{border:1px solid #333;border-radius:14px;padding:16px;color:#7d7d7d;font-size:15px;display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
+  .phone .p-ans .circ{width:20px;height:20px;border-radius:50%;border:1px solid #4a4a4a;}
+  .phone .vote{background:var(--accent);color:#111;text-align:center;font-weight:700;font-size:16px;padding:16px;border-radius:14px;}
+
+  /* changed panel */
+  .changed{max-width:1180px;margin:26px auto 0;padding:0 24px;}
+  .changed .box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 28px;}
+  .changed h2{font-size:16px;margin:0 0 16px;}
+  .chg{display:grid;grid-template-columns:180px 1fr;gap:10px 20px;padding:12px 0;border-top:1px solid #f0f0f0;font-size:14px;}
+  .chg:first-of-type{border-top:0;}
+  .chg .old{color:var(--danger);}
+  .chg .old s{color:#c07a7a;}
+  .chg .new{color:var(--ink);}
+  .chg .new b{color:var(--live);}
+  .chg .why{grid-column:1 / -1;color:var(--muted);font-size:13px;margin-top:2px;}
+
+  .badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:#fff5c2;color:#7a6a00;margin-left:8px;vertical-align:middle;}
+
+  @media(max-width:900px){
+    .card{grid-template-columns:1fr;}
+    .preview{order:-1;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="demobar">
+    <span class="lbl">Demo — poll state</span>
+    <div class="seg" id="stateSeg">
+      <button data-state="new" class="on">New / Draft</button>
+      <button data-state="scheduled">Scheduled</button>
+      <button data-state="published">Published</button>
+    </div>
+    <span class="hint">Switch state → watch the status pill &amp; footer buttons change</span>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <!-- LEFT: form -->
+      <div class="form">
+        <h1 class="create">Create</h1>
+        <p class="subtitle">Create a poll or quiz and find out what interests your users.</p>
+
+        <!-- STATUS PILL (replaces the old Activate toggle) -->
+        <div class="statusrow">
+          <span class="pill draft" id="statusPill"><span class="dot"></span><span id="statusText">Draft</span></span>
+          <span class="status-help" id="statusHelp">Not visible to users yet.</span>
+        </div>
+
+        <!-- tabs -->
+        <div class="tabs">
+          <button class="tab on" data-tab="details">Details</button>
+          <button class="tab" data-tab="datetime">Date &amp; time</button>
+        </div>
+
+        <!-- DETAILS TAB -->
+        <div id="tab-details">
+          <div class="section-h">Question</div>
+          <div class="radio-row">
+            <span class="radio on"><span class="rc"></span>Standalone</span>
+            <span class="radio"><span class="rc"></span>Series of questions</span>
+          </div>
+          <div class="toggle-row"><span class="tg"></span><span class="t-lbl">Image</span></div>
+          <div class="field-lbl">Question</div>
+          <textarea class="field" placeholder="Enter the question"></textarea>
+
+          <div class="section-h">Answers</div>
+          <div class="radio-row">
+            <span class="radio"><span class="rc"></span>Quiz</span>
+            <span class="radio on"><span class="rc"></span>Poll</span>
+            <span class="radio"><span class="rc"></span>Rating scale</span>
+          </div>
+          <div class="segmented" style="margin-bottom:8px;">
+            <button>Multiple answers</button>
+            <button class="on">One answer</button>
+          </div>
+          <div class="divider"></div>
+          <span class="addlink">+ Add answer</span>
+          <div class="divider"></div>
+          <div style="display:flex;gap:34px;">
+            <div class="toggle-row"><span class="tg"></span><span class="t-lbl">Images</span></div>
+            <div class="toggle-row"><span class="tg"></span><span class="t-lbl">Custom answer</span></div>
+          </div>
+        </div>
+
+        <!-- DATE & TIME TAB -->
+        <div id="tab-datetime" style="display:none;">
+          <div class="section-h">Display period</div>
+          <div class="radio-row" id="periodRow">
+            <span class="radio" data-period="always"><span class="rc"></span>Always</span>
+            <span class="radio on" data-period="custom"><span class="rc"></span>Custom period</span>
+            <span class="radio" data-period="single"><span class="rc"></span>Single day</span>
+          </div>
+          <div class="two-col">
+            <div>
+              <div class="field-lbl">From</div>
+              <div class="date-field">Select date <span>📅</span></div>
+            </div>
+            <div>
+              <div class="field-lbl">To</div>
+              <div class="date-field">Select date <span>📅</span></div>
+            </div>
+          </div>
+          <div class="info">⚠️ Dates and times use your browser's time zone.</div>
+
+          <div class="section-h">How often to show it <span class="badge">reworded</span></div>
+          <div class="radio-row" style="margin-bottom:6px;">
+            <span class="radio on"><span class="rc"></span>Continuously</span>
+            <span class="radio"><span class="rc"></span>Once a day</span>
+          </div>
+          <div class="sub-help">“Once a day” shows the widget briefly one time per day instead of keeping it on screen the whole period.</div>
+
+          <div class="section-h">Rooms to publish in <span class="badge">reworded</span></div>
+          <div class="radio-row">
+            <span class="radio on"><span class="rc"></span>Manually</span>
+            <span class="radio"><span class="rc"></span>From CSV file</span>
+          </div>
+          <div class="select-field">Enter room title or Room ID <span>⌄</span></div>
+        </div>
+
+        <!-- FOOTER (contextual buttons) -->
+        <div class="footer" id="footer"></div>
+      </div>
+
+      <!-- RIGHT: preview -->
+      <div class="preview">
+        <h3>Content preview</h3>
+        <div class="theme-seg">
+          <button class="on">Dark theme</button>
+          <button>Light theme</button>
+        </div>
+        <h3>Question preview</h3>
+        <div class="phone">
+          <div class="phone-grip"></div>
+          <div class="p-title">Share your opinion</div>
+          <div class="p-q">Enter question</div>
+          <div class="p-ans">Add answer <span class="circ"></span></div>
+          <div class="vote">Vote</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What changed -->
+  <div class="changed">
+    <div class="box">
+      <h2>What changed &amp; why</h2>
+      <div class="chg">
+        <div class="old"><s>Activate</s> toggle (top)</div>
+        <div class="new">Removed → replaced by a <b>status pill</b> (Draft / Scheduled / Published)</div>
+        <div class="why">The toggle mixed “is it saved?” with “is it live?” and gave no feedback on the current state. A read-only status pill answers both at a glance; the actual action moves to the footer buttons.</div>
+      </div>
+      <div class="chg">
+        <div class="old"><s>Save</s> (final button)</div>
+        <div class="new"><b>Publish</b> — or automatically <b>Schedule</b> when the start date is in the future, plus <b>Save as draft</b></div>
+        <div class="why">One contextual primary button always shows what will actually happen. Scheduling reuses the existing “Custom period → From” date, so no separate concept is needed. “Save as draft” lets you keep work without going live.</div>
+      </div>
+      <div class="chg">
+        <div class="old"><s>Briefly each day</s></div>
+        <div class="new"><b>Once a day</b> + helper line</div>
+        <div class="why">“Briefly” didn’t say briefly-relative-to-what. “Once a day” with a one-line explanation is unambiguous.</div>
+      </div>
+      <div class="chg">
+        <div class="old"><s>Display during the selected period</s></div>
+        <div class="new"><b>How often to show it</b></div>
+        <div class="why">Shorter and describes the actual choice (frequency), not just a time window restatement.</div>
+      </div>
+      <div class="chg">
+        <div class="old"><s>Add rooms for poll publishing</s></div>
+        <div class="new"><b>Rooms to publish in</b></div>
+        <div class="why">Less clunky; drops the noun-stacking (“poll publishing”).</div>
+      </div>
+      <div class="chg">
+        <div class="old"><s>One day</s></div>
+        <div class="new"><b>Single day</b></div>
+        <div class="why">Reads less like a vague “someday” and more like “a single specific day”.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---- tab switching ----
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.onclick=()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+      t.classList.add('on');
+      const tab=t.dataset.tab;
+      document.getElementById('tab-details').style.display = tab==='details'?'block':'none';
+      document.getElementById('tab-datetime').style.display = tab==='datetime'?'block':'none';
+      render();
+    };
+  });
+
+  // ---- display-period radios (drives Publish vs Schedule) ----
+  let period='custom';
+  document.querySelectorAll('#periodRow .radio').forEach(r=>{
+    r.onclick=()=>{
+      document.querySelectorAll('#periodRow .radio').forEach(x=>x.classList.remove('on'));
+      r.classList.add('on');
+      period=r.dataset.period;
+      render();
+    };
+  });
+
+  // ---- demo state switcher ----
+  let state='new';
+  document.querySelectorAll('#stateSeg button').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('#stateSeg button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      state=b.dataset.state;
+      render();
+    };
+  });
+
+  function activeTab(){
+    return document.querySelector('.tab.on').dataset.tab;
+  }
+
+  function render(){
+    // status pill
+    const pill=document.getElementById('statusPill');
+    const txt=document.getElementById('statusText');
+    const help=document.getElementById('statusHelp');
+    pill.className='pill';
+    if(state==='new'){
+      pill.classList.add('draft'); txt.textContent='Draft';
+      help.textContent='Not visible to users yet.';
+    }else if(state==='scheduled'){
+      pill.classList.add('sched'); txt.textContent='Scheduled · 20 Jul, 14:00';
+      help.textContent='Will go live automatically at the scheduled time.';
+    }else{
+      pill.classList.add('live'); txt.textContent='Published · Live';
+      help.textContent='Visible to users and collecting votes.';
+    }
+
+    // footer buttons
+    const f=document.getElementById('footer');
+    const tab=activeTab();
+
+    // Details tab = step 1 → always Cancel / Continue
+    if(tab==='details'){
+      f.innerHTML =
+        `<button class="btn ghost">Cancel</button>`+
+        `<button class="btn primary">Continue</button>`;
+      return;
+    }
+
+    // Date & time tab = final step → lifecycle-dependent
+    if(state==='new'){
+      const willSchedule = (period==='custom'||period==='single'); // future start assumed
+      const primary = willSchedule ? 'Schedule' : 'Publish';
+      f.innerHTML =
+        `<button class="btn ghost">Cancel</button>`+
+        `<button class="btn ghost">Save as draft</button>`+
+        `<button class="btn primary">${primary}</button>`;
+    }else if(state==='scheduled'){
+      f.innerHTML =
+        `<button class="btn linkish left-slot">Unschedule</button>`+
+        `<button class="btn ghost">Save changes</button>`+
+        `<button class="btn primary">Publish now</button>`;
+    }else{ // published
+      f.innerHTML =
+        `<button class="btn ghost-danger left-slot">Unpublish</button>`+
+        `<button class="btn primary">Save changes</button>`;
+    }
+  }
+
+  render();
+</script>
+</body>
+</html>
